@@ -1,6 +1,6 @@
 // api/bot.ts
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { Markup, Telegraf } from 'telegraf';
+import { Telegraf } from 'telegraf';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -17,10 +17,20 @@ export const bot = new Telegraf(token);
 
 // --- Логика бота (оставил твою, чуть аккуратнее) ---
 bot.start((ctx) => {
-  return ctx.reply(
-    'Приветственное сообщение',
-    Markup.keyboard([['О компании'], ['Заполнить анкету']]).resize()
-  );
+  return ctx.reply('Приветственное сообщение', {
+    reply_markup: {
+      keyboard: [
+        [
+          {
+            text: 'Заполнить анкету',
+            web_app: { url: `${baseUrl}/form` } // <-- сразу открывает Web App
+          }
+        ],
+        [{ text: 'О компании' }]
+      ],
+      resize_keyboard: true
+    }
+  });
 });
 
 bot.command('restart', (ctx) => {
