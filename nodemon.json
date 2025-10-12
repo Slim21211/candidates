@@ -1,0 +1,8 @@
+{
+  "watch": ["api"],
+  "ext": "ts,js,json",
+  "ignore": ["node_modules"],
+  "execMap": {
+    "ts": "tsx"
+  }
+}
