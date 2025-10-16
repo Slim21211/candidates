@@ -1,15 +1,48 @@
-import { Form, Input, Button, Checkbox } from "antd";
+import { Form, Input, Button, Checkbox } from 'antd';
+import { useEffect } from 'react';
 import styles from './styles.module.scss';
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
+
+// Типизация данных формы
+interface CandidateFormData {
+  fullName: string;
+  age: number;
+  mail: string;
+  agreement: boolean;
+}
 
 const FormComponent = () => {
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<CandidateFormData>();
 
-  const onFinish = (values: FormData) => {
+  useEffect(() => {
+    // Минимальная инициализация Telegram WebApp
+    if (window.Telegram?.WebApp) {
+      const tg = window.Telegram.WebApp;
+      tg.ready(); // Сообщаем Telegram, что приложение загружено
+
+      // Раскрываем на весь экран (иногда нужно вызвать дважды)
+      tg.expand();
+      setTimeout(() => tg.expand(), 100);
+    }
+  }, []);
+
+  const onFinish = (values: CandidateFormData) => {
     console.log('Form values:', values);
+
+    // Отправляем данные боту (если нужно)
+    if (window.Telegram?.WebApp) {
+      window.Telegram.WebApp.sendData(JSON.stringify(values));
+    }
+
+    // Или отправляем на свой сервер
+    // fetch('/api/submit', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify(values)
+    // });
   };
 
-  const link = <Link to={'/personal'}>персональных данных</Link>
+  const link = <Link to={'/personal'}>персональных данных</Link>;
 
   return (
     <div className={styles.container}>
@@ -18,7 +51,7 @@ const FormComponent = () => {
         <Form.Item
           label="ФИО"
           name="fullName"
-          rules={[{ required: true, message: "Введите ФИО" }]}
+          rules={[{ required: true, message: 'Введите ФИО' }]}
         >
           <Input placeholder="Иван Иванов" className={styles.input} />
         </Form.Item>
@@ -26,7 +59,7 @@ const FormComponent = () => {
         <Form.Item
           label="Возраст"
           name="age"
-          rules={[{ required: true, message: "Введите ваш возраст" }]}
+          rules={[{ required: true, message: 'Введите ваш возраст' }]}
         >
           <Input type="number" placeholder="21" className={styles.input} />
         </Form.Item>
@@ -34,15 +67,24 @@ const FormComponent = () => {
         <Form.Item
           label="Адрес электронной почты"
           name="mail"
-          rules={[{ required: true, message: "Введите адрес вашей электронной почты" }]}
+          rules={[
+            {
+              required: true,
+              message: 'Введите адрес вашей электронной почты',
+            },
+          ]}
         >
-          <Input type="mail" placeholder="example@mail.ru" className={styles.input} />
+          <Input
+            type="email"
+            placeholder="example@mail.ru"
+            className={styles.input}
+          />
         </Form.Item>
 
         <Form.Item
           name="agreement"
           valuePropName="checked"
-          rules={[{ required: true, message: "Поставьте согласие" }]}
+          rules={[{ required: true, message: 'Поставьте согласие' }]}
         >
           <Checkbox className={styles.checkbox}>
             Согласие на обработку {link}
